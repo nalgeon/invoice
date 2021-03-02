@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Счет на оплату</title>
+    <style>
+        .invoicePreview {
+            position: relative;
+            font-family: sans-serif;
+        }
+
+        .invoicePreview__company-block {
+            width: 60%;
+        }
+
+        .invoicePreview__company-block .invoicePreview__company-name {
+            font-weight: 700;
+        }
+
+        .invoicePreview__company-block .invoicePreview__company-address,
+        .invoicePreview__company-block .invoicePreview__company-phone {
+            margin-top: 10px;
+        }
+
+        .invoicePreview__logo-block {
+            position: absolute;
+            top: -16px;
+            right: 0;
+        }
+
+        .invoicePreview__logo-block .invoicePreview__logo-change-block {
+            text-align: right;
+        }
+
+        .invoicePreview__logo-block .invoicePreview__logo-change-block .invoicePreview__logo-wrapper {
+            height: 100px;
+            width: 200px;
+            vertical-align: middle;
+            display: table-cell;
+            overflow: hidden;
+            font-size: 0;
+        }
+
+        .invoicePreview__logo-block .invoicePreview__logo-change-block .invoicePreview__logo-wrapper .invoicePreview__logo {
+            max-height: 100px;
+            width: auto;
+        }
+
+        .invoicePreview__bank-details-block {
+            margin-top: 50px;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details-sample {
+            font-size: 11px;
+            padding-bottom: 5px;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details {
+            table-layout: fixed;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details td {
+            border: 1px solid #d9d9d9;
+            padding: 5px;
+            position: relative;
+            vertical-align: top;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details td.with-description {
+            padding-bottom: 22px;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details td.description {
+            font-size: 12px;
+            padding-top: 7px;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__table-layout td {
+            border: none;
+            padding: 0;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-bank-name {
+            width: 60%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-bank-bik {
+            width: 8%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-bank-bik-number {
+            width: 32%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-id,
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-kpp {
+            width: 8%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-id-number,
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-kpp-number {
+            width: 22%;
+        }
+
+        .invoicePreview__bank-details-block .invoicePreview__bank-details .invoicePreview__bank-details-description {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            font-size: 11px;
+        }
+
+        .invoicePreview__invoice-number {
+            padding: 50px 0;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .invoicePreview__recipient,
+        .invoicePreview__supplier {
+            padding-bottom: 5px;
+        }
+
+        .invoicePreview__items-block {
+            padding-top: 25px;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items td,
+        .invoicePreview__items-block .invoicePreview__items th {
+            border: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            padding: 5px 8px;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header th {
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-number {
+            width: 2em;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-count {
+            width: 5em;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-price,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-total {
+            width: 8em;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-count,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-price,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-header .invoicePreview__items-header-total,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-items .invoicePreview__items-items-count,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-items .invoicePreview__items-items-price,
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-items .invoicePreview__items-items-total {
+            text-align: right;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-total td {
+            border: none;
+            height: 33px;
+            text-align: right;
+        }
+
+        .invoicePreview__items-block .invoicePreview__items .invoicePreview__items-total .super-total-row {
+            font-weight: 700;
+        }
+
+        .invoicePreview__comment {
+            position: relative;
+            z-index: 10;
+            padding-top: 25px;
+        }
+
+        .invoicePreview__sign {
+            padding: 60px 0 80px;
+            position: relative;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-name,
+        .invoicePreview__sign .invoicePreview__sign-placeholder,
+        .invoicePreview__sign .invoicePreview__sign-position {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder {
+            width: 220px;
+            margin: 0 10px;
+            color: transparent;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder:after {
+            display: block;
+            content: " ";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 5;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-sign-block {
+            position: absolute;
+            left: 40px;
+            bottom: 100%;
+            margin-bottom: -10px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-sign-block .invoicePreview__sign-sign {
+            position: absolute;
+            bottom: 100%;
+            margin-bottom: -30px;
+            left: -20px;
+            max-width: 200px;
+            max-height: 100px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-sign-block.loaded .invoicePreview__sign-sign-upload {
+            display: none;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-stamp-block {
+            position: absolute;
+            left: 40px;
+            top: 100%;
+            margin-top: 8px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-stamp-block .invoicePreview__sign-stamp {
+            position: absolute;
+            max-width: 160px;
+            max-height: 160px;
+            margin-top: -90px;
+            left: 60px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-stamp-block.loaded .invoicePreview__sign-stamp-upload {
+            display: none;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-placeholder .invoicePreview__sign-stamp-block .invoicePreview__sign-stamp-upload {
+            width: 145px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-sign-change,
+        .invoicePreview__sign .invoicePreview__sign-stamp-change {
+            position: absolute;
+            right: 0;
+            display: none;
+            width: 145px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-sign-change.loaded,
+        .invoicePreview__sign .invoicePreview__sign-stamp-change.loaded {
+            display: inline-block;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-sign-change {
+            top: 40px;
+        }
+
+        .invoicePreview__sign .invoicePreview__sign-stamp-change {
+            bottom: 50px;
+        }
+
+        .invoicePreview__logo-select-file,
+        .invoicePreview__sign-select-file,
+        .invoicePreview__stamp-select-file {
+            display: none;
+        }
+
+        .statusSelector {
+            display: inline-block;
+            font-size: 0;
+        }
+
+        .statusSelector__item {
+            display: inline-block;
+            width: 120px;
+            font-size: 15px;
+            text-align: center;
+            border: 1px solid #cbd2d6;
+            box-sizing: border-box;
+            padding: 9px 0;
+            margin-left: -1px;
+            cursor: pointer;
+        }
+
+        .statusSelector__item:hover {
+            background-color: #f7f7f5;
+        }
+
+        .statusSelector__item.selected {
+            position: relative;
+            border: none;
+            padding: 10px 0;
+            color: #fff;
+        }
+
+        .statusSelector__item.status-new.selected {
+            box-shadow: 0 3px 0 0 #546877 inset;
+            background-color: #667c8d;
+        }
+
+        .statusSelector__item.status-paid.selected {
+            box-shadow: 0 3px 0 0 #00a358 inset;
+            background-color: #00c269;
+        }
+
+        .statusSelector__item.status-unpaid.selected {
+            box-shadow: 0 3px 0 0 #be0000 inset;
+            background-color: red;
+        }
+
+        .statusSelector.waiting .statusSelector__item.selected {
+            background-image: url(/assets/images/loading/loading-bars.svg);
+            background-repeat: no-repeat;
+            background-position: 50% 49%;
+            color: transparent;
+        }
+
+        .statusSelector__item:first-child {
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+
+        .statusSelector__item:last-child {
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        .statusButton,
+        .statusButton__button {
+            position: relative;
+            display: inline-block;
+        }
+
+        .statusButton__button {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            padding: 9px 40px 10px 20px;
+            background-color: #0d7bde;
+            color: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .statusButton__button.status-new {
+            background-color: #a5a5a5;
+        }
+
+        .statusButton__button.status-new:hover {
+            background-color: #9b9b9b;
+        }
+
+        .statusButton__button.status-sent {
+            background-color: #0d7bde;
+        }
+
+        .statusButton__button.status-sent:hover {
+            background-color: #0b72cf;
+        }
+
+        .statusButton__button.status-viewed {
+            background-color: #810aef;
+        }
+
+        .statusButton__button.status-viewed:hover {
+            background-color: #780cdd;
+        }
+
+        .statusButton__button.status-paid {
+            background-color: #00c269;
+        }
+
+        .statusButton__button.status-paid:hover {
+            background-color: #00b260;
+        }
+
+        .statusButton__button.status-unpaid {
+            background-color: red;
+        }
+
+        .statusButton__button.status-unpaid:hover {
+            background-color: #e90000;
+        }
+
+        .statusButton__button .statusButton__button-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            margin-top: -3px;
+            margin-left: -5px;
+            fill: currentColor;
+        }
+
+        .statusButton__dropdown {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 120px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            border-radius: 3px;
+        }
+
+        .statusButton__dropdown.visible {
+            display: block;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item {
+            padding: 10px 5px 10px 20px;
+            cursor: pointer;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item.status-new {
+            border-radius: 3px 3px 0 0;
+            color: #a5a5a5;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item.status-sent {
+            color: #0d7bde;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item.status-viewed {
+            color: #810aef;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item.status-paid {
+            color: #00c269;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item.status-unpaid {
+            border-radius: 0 0 3px 3px;
+            color: red;
+        }
+
+        .statusButton__dropdown .statusButton__dropdown-item:hover {
+            background-color: #f3f9ff;
+        }
+
+        .invoiceView {
+            position: relative;
+            padding: 20px 90px 0;
+        }
+
+        .invoiceView__actions-back {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            position: absolute;
+            top: 36px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border-radius: 40px;
+            background-color: transparent;
+            transition: background-color 0.3s;
+        }
+
+        .invoiceView__actions-back:hover {
+            border-radius: 40px;
+            background-color: #e7e7e7;
+            transition: none;
+        }
+
+        .invoiceView__actions-back:active {
+            background-color: #d3d3d3;
+            transition: none;
+        }
+
+        .invoiceView__actions-back svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -10px;
+            margin-left: -8px;
+        }
+
+        .invoiceView__header {
+            margin-bottom: 10px;
+        }
+
+        .invoiceView__details {
+            font-size: 18px;
+            color: #999;
+        }
+
+        .invoiceView__actions {
+            margin-top: 30px;
+        }
+
+        .invoiceView__actions-download,
+        .invoiceView__actions-edit,
+        .invoiceView__actions-send,
+        .invoiceView__actions-status {
+            margin-right: 20px;
+        }
+
+        .invoiceView__content {
+            margin-top: 40px;
+            width: 860px;
+            padding: 80px;
+            margin-bottom: 80px;
+            box-sizing: border-box;
+            box-shadow: 0 1px 8px -3px;
+            background-color: #fff;
+        }
+
+        .publicInvoice {
+            position: relative;
+            min-height: 100%;
+        }
+
+        .publicInvoice__content {
+            background-color: #fff;
+            width: 860px;
+            padding: 40px 80px 80px 80px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        #print {
+            margin-bottom: 2rem;
+            border: 2px solid hsl(216, 5%, 60%);
+            padding: 1rem;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        #print button {
+            padding: 0.5rem 1rem;
+        }
+
+        #print p {
+            margin: 0;
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .publicInvoice__content {
+                padding: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="publicInvoice">
+        <div class="publicInvoice__content">
+            <div id="print" class="no-print">
+                Распечатайте этот счёт или сохраните как PDF&nbsp;
+                <button onclick="window.print()">Распечать</button>
+                <p><a href="javascript:history.go(-1)">вернуться на сайт</a></p>
+            </div>
+            <div class="invoicePreview">
+                <div class="invoicePreview__company-block">
+                    <div class="invoicePreview__company-name">
+                        <span id="company-name">ООО «Компания»</span>
+                    </div>
+                    <div class="invoicePreview__company-address">
+                        <span id="company-address">000000, город, улица, дом</span>
+                    </div>
+                    <div class="invoicePreview__company-phone">
+                        <span id="company-phone">+7 999 111-11-11</span>
+                    </div>
+                </div>
+                <div class="invoicePreview__logo-block">
+                    <div class="invoicePreview__logo-change-block">
+                        <div class="invoicePreview__logo-wrapper">
+                            <img src="img/logo.png" class="invoicePreview__logo" />
+                        </div>
+                    </div>
+                </div>
+                <div class="invoicePreview__bank-details-block">
+                    <div class="invoicePreview__bank-details-sample">
+                        Образец заполнения платежного поручения
+                    </div>
+                    <table class="invoicePreview__bank-details">
+                        <tbody>
+                            <tr class="invoicePreview__table-layout">
+                                <td class="invoicePreview__bank-details-id"></td>
+                                <td class="invoicePreview__bank-details-id-number"></td>
+                                <td class="invoicePreview__bank-details-kpp"></td>
+                                <td class="invoicePreview__bank-details-kpp-number"></td>
+                                <td class="invoicePreview__bank-details-bank-bik"></td>
+                                <td class="invoicePreview__bank-details-bank-bik-number"></td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2" colspan="4"
+                                    class="invoicePreview__bank-details-bank-name with-description">
+                                    <span id="bank-name">Банк</span>
+                                    <div class="invoicePreview__bank-details-description">
+                                        Банк получателя
+                                    </div>
+                                </td>
+                                <td class="invoicePreview__bank-details-bank-bik description">
+                                    БИК
+                                </td>
+                                <td class="invoicePreview__bank-details-bank-bik-number">
+                                    <span id="bank-bik">123456789</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="description">Сч. №</td>
+                                <td>
+                                    <span id="bank-account">12345678901234567890</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="invoicePreview__bank-details-id description">
+                                    ИНН
+                                </td>
+                                <td class="invoicePreview__bank-details-id-number">
+                                    <span id="company-inn">1234567890</span>
+                                </td>
+                                <td class="invoicePreview__bank-details-kpp description">
+                                    КПП
+                                </td>
+                                <td class="invoicePreview__bank-details-kpp-number">
+                                    <span id="company-kpp">123456789</span>
+                                </td>
+                                <td rowspan="2" class="description">
+                                    Сч. №
+                                </td>
+                                <td rowspan="2">
+                                    <span id="company-account">12345678901234567890</spam>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2" colspan="4" class="with-description">
+                                    <span id="company-name-2">ООО «Дейта Кью»</span>
+                                    <div class="invoicePreview__bank-details-description">
+                                        Получатель
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="invoicePreview__invoice-number">
+                    Счет на оплату №<span id="invoice-number">****</span> от <span id="invoice-date">**.**.****</span>
+                </div>
+                <div class="invoicePreview__supplier">
+                    Поставщик: <span id="company-name-3">ООО «Компания»</span>, <span
+                        id="company-address-2">адрес</span>
+                </div>
+                <div class="invoicePreview__recipient">
+                    Покупатель: <span id="recipient">ООО «Покупатель»</span>
+                </div>
+                <div class="invoicePreview__items-block">
+                    <table class="invoicePreview__items">
+                        <thead class="invoicePreview__items-header">
+                            <tr>
+                                <th class="invoicePreview__items-header-number">
+                                    №
+                                </th>
+                                <th class="invoicePreview__items-header-item">
+                                    Товар или услуга
+                                </th>
+                                <th class="invoicePreview__items-header-count">
+                                    Кол-во
+                                </th>
+                                <th class="invoicePreview__items-header-price">
+                                    Цена
+                                </th>
+                                <th class="invoicePreview__items-header-total">
+                                    Сумма
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="invoicePreview__items-items">
+                            <tr>
+                                <td class="invoicePreview__items-items-number">
+                                    1
+                                </td>
+                                <td class="invoicePreview__items-items-item">
+                                    <span id="item">Название товара</span>
+                                </td>
+                                <td class="invoicePreview__items-items-count">
+                                    1
+                                </td>
+                                <td class="invoicePreview__items-items-price">
+                                    <span id="price">1 000,00</span>
+                                </td>
+                                <td class="invoicePreview__items-items-total">
+                                    <span id="total">1 000,00</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody class="invoicePreview__items-total">
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Итого</td>
+                                <td class="invoicePreview__items-total-total">
+                                    <span id="total-total">1 000,00</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="2" class="invoicePreview__items-total-tax">
+                                    Без НДС
+                                </td>
+                                <td class="invoicePreview__items-total-total with-tax">
+                                    0,00
+                                </td>
+                            </tr>
+                            <tr class="super-total-row">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Всего</td>
+                                <td class="invoicePreview__items-total-total invoicePreview__items-super-total">
+                                    <span id="super-total">1 000,00</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="invoicePreview__comment"></div>
+                <div class="invoicePreview__sign">
+                    <div class="invoicePreview__sign-position">
+                        Генеральный директор
+                    </div>
+                    <div class="invoicePreview__sign-placeholder">
+                        (подпись)
+                        <div class="invoicePreview__sign-sign-block">
+                            <div class="invoicePreview__sign-sign-wrapper">
+                                <img src="img/signature.png" class="invoicePreview__sign-sign" />
+                            </div>
+                        </div>
+                        <div class="invoicePreview__sign-stamp-block">
+                            <div class="invoicePreview__sign-stamp-wrapper">
+                                <img src="img/stamp.jpg" class="invoicePreview__sign-stamp" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="invoicePreview__sign-name">
+                        <span id="manager">Абакумова Ольга Валерьевна</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        fetch("company.json")
+            .then(response => response.json())
+            .then(company => prepare(company));
+
+        function prepare(company) {
+            var state = getState();
+            fillCompany(company);
+            fillRecipient(state);
+        }
+
+        function getState() {
+            var url = new URL(window.location.href);
+            var dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+            var today = new Date().toLocaleDateString("ru-RU", dateOptions);
+            var state = {
+                number: url.searchParams.get("number") || "***",
+                date: url.searchParams.get("date") || today,
+                recipient: url.searchParams.get("company") || "***",
+                item: url.searchParams.get("item") || "***",
+                price: url.searchParams.get("price") || "***",
+            };
+            state.recipient = decodeURIComponent(state.recipient);
+            state.price += ",00";
+            return state;
+        }
+
+        function fillCompany(company) {
+            document.querySelector("#company-name").innerText = company.name;
+            document.querySelector("#company-name-2").innerText = company.name;
+            document.querySelector("#company-name-3").innerText = company.name;
+            document.querySelector("#company-inn").innerText = company.inn;
+            document.querySelector("#company-address").innerText = company.address;
+            document.querySelector("#company-address-2").innerText = company.address;
+            document.querySelector("#company-phone").innerText = company.phone;
+            document.querySelector("#company-account").innerText = company.account;
+            document.querySelector("#bank-name").innerText = company.bank.name;
+            document.querySelector("#bank-bik").innerText = company.bank.bik;
+            document.querySelector("#bank-account").innerText = company.bank.account;
+        }
+
+        function fillRecipient(state) {
+            document.querySelector("#invoice-number").innerText = state.number;
+            document.querySelector("#invoice-date").innerText = state.date;
+            document.querySelector("#recipient").innerText = state.recipient;
+            document.querySelector("#item").innerText = state.item;
+            document.querySelector("#price").innerText = state.price;
+            document.querySelector("#total").innerText = state.price;
+            document.querySelector("#total-total").innerText = state.price;
+            document.querySelector("#super-total").innerText = state.price;
+        }
+    </script>
+</body>
+
+</html>
