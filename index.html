@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Генератор ссылок на счета</title>
+    <link rel="stylesheet" href="https://unpkg.com/awsm.css/dist/awsm.min.css">
+</head>
+
+<body>
+    <section>
+        <form onsubmit="generateInvoice(); return false;">
+            <fieldset>
+                <legend>Конструктор счета</legend>
+                <label for="number">Номер</label>
+                <input id="number" type="text" placeholder="1234">
+
+                <label for="date">Дата <small>(пустая = сегодня)</small></label>
+                <input id="date" type="date">
+
+                <label for="company">Покупатель</label>
+                <input id="company" type="text" placeholder="ООО «Магазинчик»">
+
+                <label for="item">Товар или услуга</label>
+                <input id="item" type="text" placeholder="Подписка на год">
+
+                <label for="price">Стоимость в ₽</label>
+                <input id="price" type="number" placeholder="5000">
+
+                <input type="submit" value="Сформировать счет">
+            </fieldset>
+            <p><a href="https://github.com/nalgeon/invoice">исходники на GitHub</a></p>
+            <p><a href="https://antonz.ru/too-simple/">предыстория</a></p>
+        </form>
+    </section>
+    <script>
+        function generateInvoice(event) {
+            try {
+                const params = gatherParams();
+                save(params);
+                const invoiceUrl = buildUrl(params);
+                document.location.assign(invoiceUrl);
+            } catch (exc) {
+                console.log(exc);
+            }
+        }
+
+        function gatherParams() {
+            const form = document.forms[0];
+            return {
+                number: form.number.value,
+                date: form.date.value,
+                company: form.company.value,
+                item: form.item.value,
+                price: form.price.value
+            };
+        }
+
+        function buildUrl(params) {
+            const invoiceUrl = new URL("invoice.html", document.location.href);
+            invoiceUrl.searchParams.set("number", params.number);
+            invoiceUrl.searchParams.set("date", params.date);
+            invoiceUrl.searchParams.set("company", params.company);
+            invoiceUrl.searchParams.set("item", params.item);
+            invoiceUrl.searchParams.set("price", params.price);
+            return invoiceUrl;
+        }
+
+        function save(params) {
+            window.localStorage.setItem("params", JSON.stringify(params));
+        }
+
+        function load() {
+            const paramsStr = window.localStorage.getItem("params");
+            if (paramsStr) {
+                return JSON.parse(paramsStr);
+            } else {
+                return null;
+            }
+        }
+
+        function initForm(params) {
+            if (!params) {
+                return;
+            }
+            const form = document.forms[0];
+            form.number.value = params.number;
+            form.date.value = params.date;
+            form.company.value = params.company;
+            form.item.value = params.item;
+            form.price.value = params.price;
+        }
+
+        const params = load();
+        initForm(params);
+    </script>
+</body>
+
+</html>

@@ -783,18 +783,20 @@
             .then(company => prepare(company));
 
         function prepare(company) {
-            var state = getState();
+            const state = getState();
             fillCompany(company);
             fillRecipient(state);
         }
 
         function getState() {
-            var url = new URL(window.location.href);
-            var dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
-            var today = new Date().toLocaleDateString("ru-RU", dateOptions);
-            var state = {
+            const url = new URL(window.location.href);
+            const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+            const dateParam = url.searchParams.get("date");
+            const date = dateParam && new Date(dateParam) || new Date();
+            const dateRu = date.toLocaleDateString("ru-RU", dateOptions);
+            const state = {
                 number: url.searchParams.get("number") || "***",
-                date: url.searchParams.get("date") || today,
+                date: dateRu,
                 recipient: url.searchParams.get("company") || "***",
                 item: url.searchParams.get("item") || "***",
                 price: url.searchParams.get("price") || "***",
